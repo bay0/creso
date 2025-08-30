@@ -1,0 +1,91 @@
+{
+  "protected_patterns": [
+    "examples/notebooks/*.ipynb",
+    "docs/**/*",
+    ".git/**/*",
+    "*.md",
+    "pyproject.toml",
+    "setup.cfg",
+    "Makefile",
+    "LICENSE",
+    "scripts/*.py",
+    ".cleanrc",
+    ".gitignore",
+    ".pre-commit-config.yaml"
+  ],
+  "cleanup_patterns": {
+    "cache": [
+      "__pycache__",
+      ".pytest_cache",
+      ".mypy_cache", 
+      ".ruff_cache",
+      ".tox",
+      ".nox"
+    ],
+    "python_compiled": [
+      "*.pyc",
+      "*.pyo",
+      "*.pyd"
+    ],
+    "models": [
+      "*.pkl",
+      "*.pt", 
+      "*.ts",
+      "*.onnx",
+      "*.safetensors",
+      "creso_*_model*"
+    ],
+    "logs": [
+      "*.log",
+      "*.out",
+      "*.err",
+      "logs/",
+      "output/",
+      "cli_test_output/"
+    ],
+    "coverage": [
+      "htmlcov",
+      "coverage.xml",
+      ".coverage*"
+    ],
+    "results": [
+      "*.png",
+      "*.jpg",
+      "*.jpeg", 
+      "*.csv",
+      "*.pdf",
+      "results/",
+      "benchmarks/results/",
+      "timeseries_classification_result.png",
+      "plot_*.png",
+      "figure_*.png"
+    ],
+    "build": [
+      "build/",
+      "dist/",
+      "*.egg-info/"
+    ],
+    "profiling": [
+      "*.prof",
+      "*.profile",
+      "profile_output.prof"
+    ],
+    "temp": [
+      "tmp/",
+      "temp/", 
+      ".tmp/",
+      "*.tmp"
+    ],
+    "backups": [
+      "cleanup_backups/",
+      ".backup/",
+      "backups/"
+    ]
+  },
+  "backup_dir": "cleanup_backups",
+  "interactive": true,
+  "dry_run": false,
+  "preserve_recent_days": 7,
+  "max_backup_size_mb": 1000,
+  "compression": false
+}
