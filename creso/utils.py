@@ -362,7 +362,7 @@ def safe_makedirs(path: str, exist_ok: bool = True) -> None:
         raise ValueError(f"Path traversal attempt detected in path: {path}")
 
     # For absolute paths, allow temp directories and current working directory
-    if normalized_path.startswith("/"):
+    if os.path.isabs(normalized_path):
         import tempfile
 
         temp_dir = tempfile.gettempdir()
