@@ -320,7 +320,7 @@ class TestStandardizer:
 
         # Verify file was created and can be loaded
         assert state_path.exists()
-        state = torch.load(state_path, map_location="cpu")
+        state = torch.load(state_path, map_location="cpu", weights_only=False)
 
         # Check state dict has expected structure
         assert isinstance(state, dict)
