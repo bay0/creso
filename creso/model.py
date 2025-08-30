@@ -198,6 +198,7 @@ class CReSOModel(nn.Module):
         dir_path = os.path.dirname(path)
         if dir_path:
             from .utils import safe_makedirs
+
             safe_makedirs(dir_path, exist_ok=True)
 
         torch.save(save_dict, path)
@@ -207,8 +208,8 @@ class CReSOModel(nn.Module):
         path: str, map_location: str = "cpu", weights_only: bool = True
     ) -> Tuple["CReSOModel", Optional[Standardizer], Dict[str, Any]]:
         """Load model with standardizer and extra data.
-        
-        Warning: Only load models from trusted sources. Loading untrusted 
+
+        Warning: Only load models from trusted sources. Loading untrusted
         models can execute arbitrary code.
 
         Args:
@@ -220,14 +221,14 @@ class CReSOModel(nn.Module):
             Loaded model, standardizer (if saved), and extra data
         """
         import warnings
-        
+
         if not weights_only:
             # Security warning for unsafe loading
             warnings.warn(
                 "Loading PyTorch models with weights_only=False from untrusted sources "
                 "can execute arbitrary code. Only load models from trusted sources.",
                 UserWarning,
-                stacklevel=2
+                stacklevel=2,
             )
         if weights_only:
             from .config import (
@@ -341,6 +342,7 @@ class CReSOModel(nn.Module):
         # Ensure directory exists
         dir_path = os.path.dirname(path) if os.path.dirname(path) else "."
         from .utils import safe_makedirs
+
         safe_makedirs(dir_path, exist_ok=True)
 
         # Save with metadata
@@ -429,6 +431,7 @@ class CReSOModel(nn.Module):
         # Ensure directory exists
         dir_path = os.path.dirname(path) if os.path.dirname(path) else "."
         from .utils import safe_makedirs
+
         safe_makedirs(dir_path, exist_ok=True)
 
         # Export with advanced options
@@ -501,7 +504,7 @@ class CReSOModel(nn.Module):
                             )
                 finally:
                     # Ensure session is properly cleaned up
-                    if 'ort_session' in locals():
+                    if "ort_session" in locals():
                         del ort_session
 
             except (ImportError, RuntimeError, ValueError, OSError) as e:

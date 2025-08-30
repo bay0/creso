@@ -253,21 +253,21 @@ class CReSORegressor:
 
         Returns:
             Loaded regressor
-            
+
         Warning:
             Only load regressor files from trusted sources. This method uses
             torch.load with weights_only=False to support configuration objects.
         """
         import warnings
-        
+
         # Security warning for PyTorch loading
         warnings.warn(
             "Loading PyTorch models from untrusted sources can execute arbitrary code. "
             "Only load models from trusted sources.",
             UserWarning,
-            stacklevel=2
+            stacklevel=2,
         )
-        
+
         save_dict = torch.load(filepath, weights_only=False, map_location="cpu")
 
         # Create regressor
@@ -655,7 +655,7 @@ class CReSORegressor:
                             )
                 finally:
                     # Ensure session is properly cleaned up
-                    if 'ort_session' in locals():
+                    if "ort_session" in locals():
                         del ort_session
 
             except (ImportError, RuntimeError, ValueError, OSError) as e:

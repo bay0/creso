@@ -111,16 +111,20 @@ class Standardizer(nn.Module):
             raise RuntimeError(
                 f"Standardizer buffers not properly loaded. fitted={self.fitted}, mean={self.mean is not None}, std={self.std is not None}"
             )
-            
+
         # Validate tensor contents for NaN/Inf values
         if isinstance(self.mean, torch.Tensor):
             if torch.isnan(self.mean).any() or torch.isinf(self.mean).any():
-                raise RuntimeError("Standardizer mean buffer contains NaN or Inf values")
+                raise RuntimeError(
+                    "Standardizer mean buffer contains NaN or Inf values"
+                )
         if isinstance(self.std, torch.Tensor):
             if torch.isnan(self.std).any() or torch.isinf(self.std).any():
                 raise RuntimeError("Standardizer std buffer contains NaN or Inf values")
             if (self.std <= 0).any():
-                raise RuntimeError("Standardizer std buffer contains non-positive values")
+                raise RuntimeError(
+                    "Standardizer std buffer contains non-positive values"
+                )
 
         # Buffers are always tensors after fitting, no need for conditional creation
         return (X - self.mean) / self.std
@@ -332,39 +336,40 @@ def apply_wave_physics_initialization(
 
 def safe_makedirs(path: str, exist_ok: bool = True) -> None:
     """Safely create directories with path validation.
-    
+
     Args:
         path: Directory path to create
         exist_ok: Don't raise error if directory exists
-        
+
     Raises:
         ValueError: If path is unsafe (contains traversal patterns)
     """
     import os
     import pathlib
-    
+
     # Normalize and resolve the path
     try:
         normalized_path = os.path.normpath(path)
         resolved_path = str(pathlib.Path(normalized_path).resolve())
     except Exception as e:
         raise ValueError(f"Invalid path: {path}") from e
-    
+
     # Check for path traversal attempts and reject unsafe paths
     current_dir = os.path.abspath(os.getcwd())
     absolute_path = os.path.abspath(resolved_path)
-    
-    if '..' in normalized_path:
+
+    if ".." in normalized_path:
         raise ValueError(f"Path traversal attempt detected in path: {path}")
-    
+
     # For absolute paths, allow temp directories and current working directory
-    if normalized_path.startswith('/'):
+    if normalized_path.startswith("/"):
         import tempfile
+
         temp_dir = tempfile.gettempdir()
         allowed_prefixes = [current_dir, temp_dir]
         if not any(absolute_path.startswith(prefix) for prefix in allowed_prefixes):
             logger.warning(f"Path outside standard directories: {path}")
             # Allow but warn for non-standard paths to maintain compatibility
-    
+
     # Create directory
     os.makedirs(resolved_path, exist_ok=exist_ok)

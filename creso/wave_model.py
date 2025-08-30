@@ -305,7 +305,9 @@ class CReSOWaveModel(nn.Module):
 
         # Center dispersion regularization (encourage diverse centers)
         if center_disp > 0 and hasattr(self.wave_packets, "centers"):
-            disp_penalty = self._compute_center_dispersion_penalty(self.wave_packets.centers)
+            disp_penalty = self._compute_center_dispersion_penalty(
+                self.wave_packets.centers
+            )
             total_reg += center_disp * disp_penalty
 
         return total_reg
@@ -620,7 +622,7 @@ class CReSOWaveModel(nn.Module):
                             )
                 finally:
                     # Ensure session is properly cleaned up
-                    if 'ort_session' in locals():
+                    if "ort_session" in locals():
                         del ort_session
 
             except Exception as e:

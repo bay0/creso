@@ -352,7 +352,9 @@ class CoherenceGate(nn.Module):
         # Zero out diagonal (no self-interference) - use atomic operation
         with torch.no_grad():
             # Create a mask for diagonal elements to ensure atomic operation
-            mask = torch.eye(n_components, dtype=torch.bool, device=self.W_interference.device)
+            mask = torch.eye(
+                n_components, dtype=torch.bool, device=self.W_interference.device
+            )
             self.W_interference.data.masked_fill_(mask, 0.0)
 
     def forward(self, psi: torch.Tensor) -> torch.Tensor:
@@ -484,7 +486,7 @@ class DispersiveWavePacket(ConstantQResonantPacket):
         with torch.no_grad():
             # For now, provide simplified statistics that work with current implementation
             freq_norms = torch.norm(self.omega, dim=-1)
-            
+
             # Simple wave speed approximation using just c_0 and dispersion
             base_speed = self.c_0.expand_as(freq_norms)
             dispersion_effect = torch.tanh(self.c_disp) * 0.1  # Small dispersion effect

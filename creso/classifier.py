@@ -239,8 +239,8 @@ class CReSOClassifier(BaseEstimator, ClassifierMixin):
     @classmethod
     def load(cls, path: str) -> "CReSOClassifier":
         """Load classifier from file.
-        
-        Warning: Only load models from trusted sources. Loading untrusted 
+
+        Warning: Only load models from trusted sources. Loading untrusted
         models can execute arbitrary code.
 
         Args:
@@ -250,20 +250,20 @@ class CReSOClassifier(BaseEstimator, ClassifierMixin):
             Loaded classifier
         """
         import warnings
-        
+
         # Security warning for PyTorch loading
         warnings.warn(
             "Loading PyTorch models from untrusted sources can execute arbitrary code. "
             "Only load models from trusted sources.",
             UserWarning,
-            stacklevel=2
+            stacklevel=2,
         )
-        
+
         # Load metadata with weights_only=False for LabelEncoder support
         save_data = torch.load(
             path,
             weights_only=False,  # Need to allow objects for LabelEncoder
-            map_location="cpu"
+            map_location="cpu",
         )
 
         # Load model with weights_only=False for configuration objects
@@ -343,7 +343,6 @@ class CReSOClassifier(BaseEstimator, ClassifierMixin):
                         z, _, _, _, _ = self.classifier.model(x, train_mode=False)
                         predictions = (torch.sigmoid(z) > 0.5).float()
                         return predictions
-
 
         # Use the model's export method
         self.model.to_torchscript(
@@ -458,11 +457,11 @@ class CReSOvRClassifier(BaseEstimator, ClassifierMixin):
 
         # Use parallel training only when beneficial (large dataset + many classes)
         use_parallel = (
-            parallel and 
-            len(self.classes_) >= 5 and  # At least 5 classes
-            X.shape[0] >= 1000           # At least 1000 samples
+            parallel
+            and len(self.classes_) >= 5  # At least 5 classes
+            and X.shape[0] >= 1000  # At least 1000 samples
         )
-        
+
         if use_parallel:
             logger.info(f"Using parallel training for {len(self.classes_)} classes")
             self._fit_parallel(X, y_encoded, **fit_kwargs)
@@ -472,10 +471,7 @@ class CReSOvRClassifier(BaseEstimator, ClassifierMixin):
         return self
 
     def _fit_sequential(
-        self, 
-        X: np.ndarray, 
-        y_encoded: np.ndarray, 
-        **fit_kwargs
+        self, X: np.ndarray, y_encoded: np.ndarray, **fit_kwargs
     ) -> None:
         """Original sequential training method."""
         for i, class_label in enumerate(self.classes_):
@@ -494,49 +490,48 @@ class CReSOvRClassifier(BaseEstimator, ClassifierMixin):
             clf.fit(X, y_binary, **fit_kwargs)
             self.classifiers_[i] = clf
 
-    def _fit_parallel(
-        self, 
-        X: np.ndarray, 
-        y_encoded: np.ndarray, 
-        **fit_kwargs
-    ) -> None:
+    def _fit_parallel(self, X: np.ndarray, y_encoded: np.ndarray, **fit_kwargs) -> None:
         """Optimized parallel training method."""
         import concurrent.futures
         import copy
-        
+
         def train_single_classifier(args):
             """Train a single binary classifier."""
             i, class_label, X_data, y_encoded_data = args
-            
+
             # Create binary labels (current class vs rest)
             y_binary = (y_encoded_data == i).astype(int)
-            
+
             # Skip if class has no positive examples
             if np.sum(y_binary) == 0:
                 logger.warning("Class %s has no examples, skipping", class_label)
                 return i, None
-            
+
             # Create a copy of config to avoid race conditions
             config_copy = copy.deepcopy(self.config)
             clf = CReSOClassifier(config_copy)
             clf.fit(X_data, y_binary, **fit_kwargs)
             return i, clf
-        
+
         # Prepare arguments for parallel execution
         args_list = [
-            (i, class_label, X, y_encoded) 
+            (i, class_label, X, y_encoded)
             for i, class_label in enumerate(self.classes_)
         ]
-        
+
         # Use ThreadPoolExecutor for I/O bound tasks or ProcessPoolExecutor for CPU bound
         # Using ThreadPoolExecutor for better memory efficiency
         max_workers = min(len(self.classes_), 4)  # Limit workers to avoid memory issues
-        
-        logger.info(f"Training {len(self.classes_)} classifiers in parallel with {max_workers} workers")
-        
+
+        logger.info(
+            f"Training {len(self.classes_)} classifiers in parallel with {max_workers} workers"
+        )
+
         with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
-            futures = [executor.submit(train_single_classifier, args) for args in args_list]
-            
+            futures = [
+                executor.submit(train_single_classifier, args) for args in args_list
+            ]
+
             for future in concurrent.futures.as_completed(futures):
                 i, clf = future.result()
                 if clf is not None:
@@ -636,8 +631,8 @@ class CReSOvRClassifier(BaseEstimator, ClassifierMixin):
     @classmethod
     def load(cls, path_dir: str) -> "CReSOvRClassifier":
         """Load multiclass classifier from directory.
-        
-        Warning: Only load models from trusted sources. Loading untrusted 
+
+        Warning: Only load models from trusted sources. Loading untrusted
         models can execute arbitrary code.
 
         Args:
@@ -647,21 +642,21 @@ class CReSOvRClassifier(BaseEstimator, ClassifierMixin):
             Loaded classifier
         """
         import warnings
-        
+
         # Security warning for PyTorch loading
         warnings.warn(
             "Loading PyTorch models from untrusted sources can execute arbitrary code. "
             "Only load models from trusted sources.",
             UserWarning,
-            stacklevel=2
+            stacklevel=2,
         )
-        
+
         # Load metadata
         # Load metadata with weights_only=False for LabelEncoder support
         metadata = torch.load(
             os.path.join(path_dir, "metadata.pkl"),
             weights_only=False,  # Need to allow objects for LabelEncoder
-            map_location="cpu"
+            map_location="cpu",
         )
 
         # Reconstruct classifier

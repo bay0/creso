@@ -67,9 +67,9 @@ def acf_peak_seeds(
 
         # Compute ACF using FFT for O(N log N) efficiency
         n = len(signal)
-        signal_fft = np.fft.fft(signal, n=2*n)
+        signal_fft = np.fft.fft(signal, n=2 * n)
         acf_full = np.fft.ifft(signal_fft * np.conj(signal_fft)).real
-        acf = acf_full[:max_lag + 1]  # Take positive lags only
+        acf = acf_full[: max_lag + 1]  # Take positive lags only
         # Normalize (avoid division by zero and numerical issues)
         if acf[0] > 1e-10:
             acf = acf / acf[0]
@@ -282,13 +282,17 @@ class CReSOTrainer:
             if class_weight == "balanced":
                 n_pos = torch.sum(y_train).item()
                 n_neg = len(y_train) - n_pos
-                
+
                 # Handle edge cases for single-class datasets
                 if n_pos == 0:
-                    logger.warning("No positive samples found, disabling class weighting")
+                    logger.warning(
+                        "No positive samples found, disabling class weighting"
+                    )
                     pos_weight = None  # Don't apply any weighting
                 elif n_neg == 0:
-                    logger.warning("No negative samples found, disabling class weighting")
+                    logger.warning(
+                        "No negative samples found, disabling class weighting"
+                    )
                     pos_weight = None  # Don't apply any weighting
                 else:
                     pos_weight = torch.tensor(n_neg / n_pos, device=device)
@@ -353,13 +357,13 @@ class CReSOTrainer:
 
         # Training loop
         model.train()
-        
+
         # Create progress bars for epochs and batches
         epoch_pbar = tqdm(
-            range(start_epoch, epochs), 
-            desc="Training", 
+            range(start_epoch, epochs),
+            desc="Training",
             unit="epoch",
-            disable=verbose < 1
+            disable=verbose < 1,
         )
 
         for epoch in epoch_pbar:
@@ -371,7 +375,7 @@ class CReSOTrainer:
             # Simple batch iteration with local permutation tensor
             n_samples = X_train.size(0)
             indices = torch.randperm(n_samples, device=device)
-            
+
             # Create batch progress bar
             total_batches = (n_samples + batch_size - 1) // batch_size
             batch_pbar = tqdm(
@@ -380,7 +384,7 @@ class CReSOTrainer:
                 leave=False,
                 disable=verbose < 2,
                 total=total_batches,
-                unit="batch"
+                unit="batch",
             )
 
             for start_idx in batch_pbar:
@@ -454,19 +458,21 @@ class CReSOTrainer:
                             "Training loss became non-finite",
                             epoch=epoch,
                             batch=start_idx // batch_size,
-                            loss_value=loss_val
+                            loss_value=loss_val,
                         )
-                    
+
                     train_loss += loss_val
                     preds = torch.sigmoid(z.squeeze()) > 0.5
                     train_correct += torch.sum(preds == y_batch).item()
                     n_batches += 1
-                    
+
                     # Update batch progress bar with loss
-                    batch_pbar.set_postfix({
-                        'loss': f"{loss_val:.4f}",
-                        'acc': f"{train_correct/(n_batches * batch_size):.4f}"
-                    })
+                    batch_pbar.set_postfix(
+                        {
+                            "loss": f"{loss_val:.4f}",
+                            "acc": f"{train_correct/(n_batches * batch_size):.4f}",
+                        }
+                    )
 
             # Validation phase
             val_acc = 0.0
@@ -504,7 +510,11 @@ class CReSOTrainer:
 
                 if patience_counter >= patience:
                     epoch_pbar.set_description("Training (Early Stop)")
-                    logger.info("Early stopping at epoch %d - best val_acc: %.4f", epoch + 1, best_val_acc)
+                    logger.info(
+                        "Early stopping at epoch %d - best val_acc: %.4f",
+                        epoch + 1,
+                        best_val_acc,
+                    )
                     break
 
             # Apply pruning if enabled (after some warmup epochs)
@@ -556,17 +566,16 @@ class CReSOTrainer:
             history["val_loss"].append(val_loss if has_validation else None)
             history["val_acc"].append(val_acc if has_validation else None)
             history["learning_rate"].append(optimizer.param_groups[0]["lr"])
-            
+
             # Update epoch progress bar with metrics
             postfix = {
-                'train_loss': f"{epoch_train_loss:.4f}",
-                'train_acc': f"{train_acc:.4f}"
+                "train_loss": f"{epoch_train_loss:.4f}",
+                "train_acc": f"{train_acc:.4f}",
             }
             if has_validation:
-                postfix.update({
-                    'val_loss': f"{val_loss:.4f}",
-                    'val_acc': f"{val_acc:.4f}"
-                })
+                postfix.update(
+                    {"val_loss": f"{val_loss:.4f}", "val_acc": f"{val_acc:.4f}"}
+                )
             epoch_pbar.set_postfix(postfix)
 
             # Checkpoint saving
@@ -858,7 +867,13 @@ class CReSOTrainer:
         )
         return checkpoint
 
-    def _create_scheduler(self, optimizer: optim.Optimizer, epochs: int) -> Optional[Union[optim.lr_scheduler.ReduceLROnPlateau, optim.lr_scheduler.CosineAnnealingLR, optim.lr_scheduler.StepLR]]:
+    def _create_scheduler(self, optimizer: optim.Optimizer, epochs: int) -> Optional[
+        Union[
+            optim.lr_scheduler.ReduceLROnPlateau,
+            optim.lr_scheduler.CosineAnnealingLR,
+            optim.lr_scheduler.StepLR,
+        ]
+    ]:
         """Create learning rate scheduler based on configuration.
 
         Args:

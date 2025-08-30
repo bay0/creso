@@ -131,7 +131,9 @@ class WaveResonanceLayer(nn.Module):
 
             # Memory-efficient distance computation: ||x - c_k||^2
             # Using broadcasting instead of cdist to avoid large intermediate matrices
-            dist_sq = torch.sum((x.unsqueeze(1) - self.centers.unsqueeze(0)) ** 2, dim=2)  # (B, K)
+            dist_sq = torch.sum(
+                (x.unsqueeze(1) - self.centers.unsqueeze(0)) ** 2, dim=2
+            )  # (B, K)
 
             # Gaussian envelope: exp(-dist^2 / (2 * sigma^2))
             envelope = torch.exp(-dist_sq / (2 * sigma.unsqueeze(0) ** 2))  # (B, K)

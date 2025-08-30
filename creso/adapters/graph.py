@@ -374,15 +374,15 @@ class GraphNodeCReSOClassifier:
         import warnings
 
         graph_path = path.replace(".pkl", "_graph_params.pkl")
-        
+
         # Security warning for pickle loading
         warnings.warn(
             "Loading pickled data from untrusted sources can execute arbitrary code. "
             "Only load models from trusted sources.",
             UserWarning,
-            stacklevel=2
+            stacklevel=2,
         )
-        
+
         with open(graph_path, "rb") as f:
             graph_params = pickle.load(f)
 
