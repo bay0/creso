@@ -207,6 +207,9 @@ class CReSOModel(nn.Module):
         path: str, map_location: str = "cpu", weights_only: bool = True
     ) -> Tuple["CReSOModel", Optional[Standardizer], Dict[str, Any]]:
         """Load model with standardizer and extra data.
+        
+        Warning: Only load models from trusted sources. Loading untrusted 
+        models can execute arbitrary code.
 
         Args:
             path: Load path
@@ -216,6 +219,16 @@ class CReSOModel(nn.Module):
         Returns:
             Loaded model, standardizer (if saved), and extra data
         """
+        import warnings
+        
+        if not weights_only:
+            # Security warning for unsafe loading
+            warnings.warn(
+                "Loading PyTorch models with weights_only=False from untrusted sources "
+                "can execute arbitrary code. Only load models from trusted sources.",
+                UserWarning,
+                stacklevel=2
+            )
         if weights_only:
             from .config import (
                 CReSOConfiguration,

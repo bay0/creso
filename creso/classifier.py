@@ -239,6 +239,9 @@ class CReSOClassifier(BaseEstimator, ClassifierMixin):
     @classmethod
     def load(cls, path: str) -> "CReSOClassifier":
         """Load classifier from file.
+        
+        Warning: Only load models from trusted sources. Loading untrusted 
+        models can execute arbitrary code.
 
         Args:
             path: Load path
@@ -246,6 +249,16 @@ class CReSOClassifier(BaseEstimator, ClassifierMixin):
         Returns:
             Loaded classifier
         """
+        import warnings
+        
+        # Security warning for PyTorch loading
+        warnings.warn(
+            "Loading PyTorch models from untrusted sources can execute arbitrary code. "
+            "Only load models from trusted sources.",
+            UserWarning,
+            stacklevel=2
+        )
+        
         # Load metadata with weights_only=False for LabelEncoder support
         save_data = torch.load(
             path,
@@ -623,6 +636,9 @@ class CReSOvRClassifier(BaseEstimator, ClassifierMixin):
     @classmethod
     def load(cls, path_dir: str) -> "CReSOvRClassifier":
         """Load multiclass classifier from directory.
+        
+        Warning: Only load models from trusted sources. Loading untrusted 
+        models can execute arbitrary code.
 
         Args:
             path_dir: Directory containing saved classifiers
@@ -630,6 +646,16 @@ class CReSOvRClassifier(BaseEstimator, ClassifierMixin):
         Returns:
             Loaded classifier
         """
+        import warnings
+        
+        # Security warning for PyTorch loading
+        warnings.warn(
+            "Loading PyTorch models from untrusted sources can execute arbitrary code. "
+            "Only load models from trusted sources.",
+            UserWarning,
+            stacklevel=2
+        )
+        
         # Load metadata
         # Load metadata with weights_only=False for LabelEncoder support
         metadata = torch.load(
