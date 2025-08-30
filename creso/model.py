@@ -250,9 +250,17 @@ class CReSOModel(nn.Module):
                 SystemConfig,
                 WavePhysicsConfig,
             ]
-            with torch.serialization.safe_globals(safe_classes):
+
+            # Check if safe_globals is available (PyTorch >= 2.3.0)
+            if hasattr(torch.serialization, "safe_globals"):
+                with torch.serialization.safe_globals(safe_classes):
+                    checkpoint = torch.load(
+                        path, map_location=map_location, weights_only=True
+                    )
+            else:
+                # Fallback for older PyTorch versions
                 checkpoint = torch.load(
-                    path, map_location=map_location, weights_only=True
+                    path, map_location=map_location, weights_only=False
                 )
         else:
             checkpoint = torch.load(path, map_location=map_location, weights_only=False)
