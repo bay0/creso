@@ -570,7 +570,6 @@ class CReSOWaveModel(nn.Module):
                 dynamic_axes=dynamic_axes,
                 verbose=False,
                 keep_initializers_as_inputs=False,
-                strip_doc_string=True,
             )
 
         # Optimize ONNX model if requested

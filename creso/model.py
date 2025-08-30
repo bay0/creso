@@ -449,7 +449,6 @@ class CReSOModel(nn.Module):
                     dynamic_axes=dynamic_axes,
                     verbose=False,
                     keep_initializers_as_inputs=False,
-                    strip_doc_string=True,
                 )
         except Exception as e:
             logger.error(f"ONNX export failed: {e}")

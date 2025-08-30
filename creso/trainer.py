@@ -906,7 +906,6 @@ class CReSOTrainer:
                 factor=self.config.training.scheduler_factor,
                 patience=self.config.training.scheduler_patience,
                 min_lr=self.config.training.scheduler_min_lr,
-                verbose=True,
             )
 
         elif scheduler_type == "cosine":

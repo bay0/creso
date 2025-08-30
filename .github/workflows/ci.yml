@@ -122,8 +122,14 @@ jobs:
     - name: Check dependencies with safety (optional)
       run: |
         if command -v safety >/dev/null 2>&1; then
-          safety check --json --output safety-report.json || echo "Safety dependency check failed"
-          safety check || echo "Known dependency issues (advisory)"
+          # Test if safety is working properly first
+          if safety --version >/dev/null 2>&1; then
+            safety check --json --output safety-report.json || echo "Safety dependency check failed"
+            safety check || echo "Known dependency issues (advisory)"
+          else
+            echo "Safety is installed but not working properly (likely typer compatibility issue)"
+            echo "Skipping safety dependency vulnerability check"
+          fi
         else
           echo "Safety not available, skipping dependency vulnerability check"
         fi
