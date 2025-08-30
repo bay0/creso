@@ -59,6 +59,7 @@ jobs:
     - name: Type check with mypy (advisory only)
       run: |
         mypy creso/ || echo "Type checking has issues but continuing CI"
+      continue-on-error: true
     
     - name: Test with pytest
       run: |

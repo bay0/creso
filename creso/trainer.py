@@ -782,8 +782,16 @@ class CReSOTrainer:
             SystemConfig,
             WavePhysicsConfig,
         ]
-        with torch.serialization.safe_globals(safe_classes):
-            checkpoint = torch.load(filepath, map_location=device, weights_only=True)
+
+        # Check if safe_globals is available (PyTorch >= 2.3.0)
+        if hasattr(torch.serialization, "safe_globals"):
+            with torch.serialization.safe_globals(safe_classes):
+                checkpoint = torch.load(
+                    filepath, map_location=device, weights_only=True
+                )
+        else:
+            # Fallback for older PyTorch versions
+            checkpoint = torch.load(filepath, map_location=device, weights_only=False)
         logger.info(
             f"Loaded checkpoint from epoch {checkpoint['epoch']} from {filepath}"
         )
